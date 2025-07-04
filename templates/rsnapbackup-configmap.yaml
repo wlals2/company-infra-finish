@@ -1,0 +1,11 @@
+{{- if .Values.rsnapbackup.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rsnapbackup-config
+  namespace: company-infra
+data:
+  rsnapshot.conf: |-
+    {{ .Values.rsnapbackup.config | nindent 4 }}
+{{- end }}
+

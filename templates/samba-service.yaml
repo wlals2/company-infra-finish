@@ -1,0 +1,21 @@
+{{- if .Values.samba.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: samba
+  namespace: company-infra
+spec:
+  type: NodePort
+  ports:
+    - name: netbios
+      port: 139
+      targetPort: 139
+      nodePort: 30139
+    - name: smb  
+      port: 445
+      targetPort: 445
+      nodePort: 30445
+  selector:
+    app: samba
+{{- end }}
+

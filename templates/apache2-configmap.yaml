@@ -1,0 +1,24 @@
+{{- if .Values.apache2.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apache2-config
+  namespace: company-infra
+data:
+  httpd.conf: |
+    ServerRoot "/usr/local/apache2"
+    Listen 80
+    LoadModule mpm_event_module modules/mod_mpm_event.so
+    LoadModule unixd_module modules/mod_unixd.so
+    LoadModule authz_core_module modules/mod_authz_core.so
+    LoadModule authz_host_module modules/mod_authz_host.so
+    ServerName localhost
+    DocumentRoot "/usr/local/apache2/htdocs"
+    <Directory "/usr/local/apache2/htdocs">
+        Require all granted
+    </Directory>
+    ErrorLog /proc/self/fd/2
+    LogLevel warn
+
+{{- end }}
+

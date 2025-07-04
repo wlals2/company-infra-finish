@@ -1,0 +1,15 @@
+{{- if .Values.samba.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: samba-pvc
+  namespace: company-infra
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.samba.storage }}
+  volumeName: samba-pv
+  storageClassName: ""
+{{- end }}

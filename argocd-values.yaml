@@ -1,0 +1,5 @@
+server:
+  service:
+    type: NodePort
+    nodePort: 32080        # 원하는 포트
+

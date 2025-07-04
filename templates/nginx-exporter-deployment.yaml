@@ -1,0 +1,25 @@
+{{- if .Values.nginxexporter.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-exporter
+  namespace: company-infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-exporter
+  template:
+    metadata:
+      labels:
+        app: nginx-exporter
+    spec:
+      containers:
+        - name: nginx-exporter
+          image: nginx/nginx-prometheus-exporter:0.11.0
+          args:
+            - "--nginx.scrape-uri={{ .Values.nginxexporter.nginxScrapeUri }}"
+          ports:
+            - containerPort: 9113
+{{- end }}
+

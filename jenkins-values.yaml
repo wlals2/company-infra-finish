@@ -1,0 +1,10 @@
+controller:
+  serviceType: NodePort
+  nodePort: 30800        # 원하는 포트
+  admin:
+    password: "jenkinsadmin"
+  persistence:
+    enabled: true
+    storageClass: "hostpath"    # 위에서 만든 StorageClass 이름
+    size: 8Gi
+

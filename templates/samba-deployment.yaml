@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: samba
+  namespace: company-infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: samba
+  template:
+    metadata:
+      labels:
+        app: samba
+    spec:
+      containers:
+        - name: samba
+          image: dperson/samba
+          args: ["-s", "share;/share;yes;no;yes"]
+          ports:
+            - containerPort: 139
+              hostPort: 139
+            - containerPort: 445
+              hostPort: 445
+          volumeMounts:
+            - name: samba-data
+              mountPath: /share
+      volumes:
+        - name: samba-data
+          persistentVolumeClaim:
+            claimName: samba-pvc
+

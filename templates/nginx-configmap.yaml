@@ -1,0 +1,11 @@
+{{- if .Values.nginx.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: company-infra
+data:
+  nginx.conf: |-
+    {{ .Values.nginx.config | nindent 4 }}
+{{- end }}
+

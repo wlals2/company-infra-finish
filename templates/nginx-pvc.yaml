@@ -1,0 +1,15 @@
+{{- if .Values.nginx.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-pvc
+  namespace: company-infra
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.nginx.storage }}
+  storageClassName: local-path
+{{- end }}
+

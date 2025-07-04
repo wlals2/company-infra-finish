@@ -1,0 +1,35 @@
+{{- if .Values.mysqldexporter.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysqld-exporter
+  namespace: company-infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysqld-exporter
+  template:
+    metadata:
+      labels:
+        app: mysqld-exporter
+    spec:
+      containers:
+        - name: mysqld-exporter
+          image: prom/mysqld-exporter:v0.14.0
+          args:
+            - --config.my-cnf=/root/.my.cnf
+          volumeMounts:
+            - name: mycnf
+              mountPath: /root/.my.cnf
+              subPath: my.cnf
+          ports:
+            - containerPort: 9104
+          securityContext:
+            runAsUser: 0
+      volumes:
+        - name: mycnf
+          secret:
+            secretName: mysqld-mycnf
+{{- end }}
+

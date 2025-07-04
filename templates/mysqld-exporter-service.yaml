@@ -1,0 +1,16 @@
+{{- if .Values.mysqldexporter.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysqld-exporter
+  namespace: company-infra
+spec:
+  type: NodePort
+  ports:
+    - port: 9104
+      targetPort: 9104
+      nodePort: {{ .Values.mysqldexporter.nodePort }}
+  selector:
+    app: mysqld-exporter
+{{- end }}
+

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mycnf-debug
+  namespace: company-infra
+spec:
+  containers:
+    - name: busybox
+      image: busybox
+      command: [ "sleep", "3600" ]
+      volumeMounts:
+        - name: mycnf
+          mountPath: /root/.my.cnf
+          subPath: my.cnf
+  volumes:
+    - name: mycnf
+      secret:
+        secretName: mysqld-mycnf
+

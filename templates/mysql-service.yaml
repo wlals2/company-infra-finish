@@ -1,0 +1,16 @@
+{{- if .Values.mysql.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: company-infra
+spec:
+  type: NodePort
+  ports:
+    - port: 3306
+      targetPort: 3306
+      nodePort: {{ .Values.mysql.nodePort }}
+  selector:
+    app: mysql
+{{- end }}
+

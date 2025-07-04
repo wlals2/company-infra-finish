@@ -1,0 +1,16 @@
+{{- if .Values.openvpn.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: openvpn
+  namespace: company-infra
+spec:
+  type: NodePort
+  ports:
+    - port: 1194
+      targetPort: 1194
+      nodePort: {{ .Values.openvpn.nodePort }}
+  selector:
+    app: openvpn
+{{- end }}
+

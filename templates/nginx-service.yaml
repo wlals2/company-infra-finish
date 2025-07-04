@@ -1,0 +1,16 @@
+{{- if .Values.nginx.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  namespace: company-infra
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: {{ .Values.nginx.nodePort }}
+  selector:
+    app: nginx
+{{- end }}
+

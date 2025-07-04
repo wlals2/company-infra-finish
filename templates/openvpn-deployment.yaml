@@ -1,0 +1,62 @@
+{{- if .Values.openvpn.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openvpn
+  namespace: company-infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openvpn
+  template:
+    metadata:
+      labels:
+        app: openvpn
+    spec:
+      initContainers:
+        - name: openvpn-init
+          image: kylemanna/openvpn
+          env:
+            - name: EASYRSA_BATCH
+              value: "1"
+          command:
+            - /bin/sh
+            - -c
+            - |
+              if [ ! -f /etc/openvpn/ovpn_env.sh ]; then
+                echo "[INFO] Initializing openvpn config...";
+                ovpn_genconfig -u udp://192.168.56.103:1194
+                export EASYRSA_BATCH=1
+                ovpn_initpki nopass
+              fi
+          volumeMounts:
+            - name: openvpn-data
+              mountPath: /etc/openvpn
+          securityContext:
+            capabilities:
+              add: ["NET_ADMIN"]
+            privileged: true
+      containers:
+        - name: openvpn
+          image: kylemanna/openvpn
+          env:
+            - name: EASYRSA_BATCH
+              value: "1"
+
+          ports:
+            - containerPort: 1194
+          volumeMounts:
+            - name: openvpn-data
+              mountPath: /etc/openvpn
+          securityContext:
+            capabilities:
+              add: ["NET_ADMIN"]
+            privileged: true
+      volumes:
+        - name: openvpn-data
+          persistentVolumeClaim:
+            claimName: openvpn-pvc
+
+{{- end }}
+

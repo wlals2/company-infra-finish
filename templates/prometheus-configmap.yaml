@@ -1,0 +1,11 @@
+{{- if .Values.prometheus.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: company-infra
+data:
+  prometheus.yml: |-
+    {{ .Values.prometheus.config | nindent 4 }}
+{{- end }}
+

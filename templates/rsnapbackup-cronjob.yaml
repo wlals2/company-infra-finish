@@ -1,0 +1,36 @@
+{{- if .Values.rsnapbackup.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: rsnapbackup
+  namespace: company-infra
+spec:
+  schedule: "{{ .Values.rsnapbackup.schedule }}"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: rsnapbackup
+              image: ghcr.io/linuxserver/rsnapshot
+              volumeMounts:
+                - name: config
+                  mountPath: /config/rsnapshot.conf
+                  subPath: rsnapshot.conf
+                - name: data
+                  mountPath: /data
+                - name: backup
+                  mountPath: /backup
+          volumes:
+            - name: config
+              configMap:
+                name: rsnapbackup-config
+            - name: data
+              persistentVolumeClaim:
+                claimName: data-pvc   # 데이터 볼륨
+            - name: backup
+              persistentVolumeClaim:
+                claimName: rsnapbackup-pvc
+          restartPolicy: OnFailure
+{{- end }}
+

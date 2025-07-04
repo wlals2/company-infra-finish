@@ -1,0 +1,16 @@
+{{- if .Values.nginxexporter.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-exporter
+  namespace: company-infra
+spec:
+  type: NodePort
+  ports:
+    - port: 9113
+      targetPort: 9113
+      nodePort: {{ .Values.nginxexporter.nodePort }}
+  selector:
+    app: nginx-exporter
+{{- end }}
+

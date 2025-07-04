@@ -1,0 +1,16 @@
+# templates/openvpn-pvc.yaml
+{{- if .Values.openvpn.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: openvpn-pvc
+  namespace: company-infra
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.openvpn.storage | default "1Gi" }}
+  storageClassName: local-path
+{{- end }}
+

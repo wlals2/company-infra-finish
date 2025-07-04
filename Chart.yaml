@@ -1,0 +1,7 @@
+apiVersion: v2
+name: company-infra
+description: A Helm chart for company infra (Elasticsearch, Prometheus, Grafana, Jenkins)
+type: application
+version: 0.1.0
+appVersion: "1.0"
+
