@@ -13,6 +13,10 @@ spec:
           containers:
             - name: rsnapbackup
               image: ghcr.io/linuxserver/rsnapshot
+              command:
+                - /bin/sh
+                - -c
+                - "rsnapshot -c /config/rsnapshot.conf sync && rsnapshot -c /config/rsnapshot.conf daily"
               volumeMounts:
                 - name: config
                   mountPath: /config/rsnapshot.conf
@@ -27,7 +31,7 @@ spec:
                 name: rsnapbackup-config
             - name: data
               persistentVolumeClaim:
-                claimName: data-pvc   # 데이터 볼륨
+                claimName: data-pvc
             - name: backup
               persistentVolumeClaim:
                 claimName: rsnapbackup-pvc

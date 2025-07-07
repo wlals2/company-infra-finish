@@ -1,0 +1,812 @@
+---
+# Source: company-infra/templates/apache2-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apache2-config
+  namespace: company-infra
+data:
+  httpd.conf: |
+    ServerRoot "/usr/local/apache2"
+    Listen 80
+    LoadModule mpm_event_module modules/mod_mpm_event.so
+    LoadModule unixd_module modules/mod_unixd.so
+    LoadModule authz_core_module modules/mod_authz_core.so
+    LoadModule authz_host_module modules/mod_authz_host.so
+    ServerName localhost
+    DocumentRoot "/usr/local/apache2/htdocs"
+    <Directory "/usr/local/apache2/htdocs">
+        Require all granted
+    </Directory>
+    ErrorLog /proc/self/fd/2
+    LogLevel warn
+---
+# Source: company-infra/templates/apache2-indexhtml-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apache2-indexhtml
+  namespace: company-infra
+data:
+  index.html: |
+    <html>
+    <head><title>Apache2 Test Page</title></head>
+    <body>
+      <h1>Hello from ConfigMap index.html!</h1>
+    </body>
+    </html>
+---
+# Source: company-infra/templates/nginx-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: company-infra
+data:
+  nginx.conf: |-
+    
+    user  nginx;
+    worker_processes  auto;
+    error_log  /var/log/nginx/error.log warn;
+    pid        /var/run/nginx.pid;
+    events {
+      worker_connections 1024;
+    }
+    http {
+      include       /etc/nginx/mime.types;
+      default_type  application/octet-stream;
+      sendfile        on;
+      keepalive_timeout  65;
+      server {
+        listen       80;
+        server_name  localhost;
+        location / {
+          root   /usr/share/nginx/html;
+          index  index.html index.htm;
+        }
+    
+        location /stub_status{
+          stub_status;
+          allow all;
+          access_log off;
+        }
+      }
+    }
+---
+# Source: company-infra/templates/openvpn-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openvpn-config
+  namespace: company-infra
+data:
+  server.conf: |-
+    
+    # server.conf 예시
+    port 1194
+    proto udp
+    dev tun
+---
+# Source: company-infra/templates/prometheus-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: company-infra
+data:
+  prometheus.yml: |-
+    
+    global:
+      scrape_interval: 15s
+    scrape_configs:
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+      - job_name: 'mysqld-exporter'
+        static_configs:
+          - targets: ['mysqld-exporter:9104']
+      - job_name: 'node-exporter'
+        static_configs:
+          - targets: ['node-exporter:9100']
+      - job_name: 'nginx-exporter'
+        static_configs:
+          - targets: ['nginx-exporter:9113']
+---
+# Source: company-infra/templates/rsnapbackup-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rsnapbackup-config
+  namespace: company-infra
+data:
+  rsnapshot.conf: |-
+    
+    # rsnapshot.conf 예시 내용
+    snapshot_root   /backup/
+    backup  /data/  localhost/
+---
+# Source: company-infra/templates/samba-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: samba-config
+  namespace: company-infra
+data:
+  smb.conf: |-
+    
+    [share]
+    path = /share
+    read only = no
+    browsable = yes
+    guest ok = yes
+---
+# Source: company-infra/templates/samba-pv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: samba-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /srv/samba-share
+    type: DirectoryOrCreate
+---
+# Source: company-infra/templates/data-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-pvc
+  namespace: company-infra
+spec:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: local-path
+---
+# Source: company-infra/templates/grafana-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-pvc
+  namespace: company-infra
+spec:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: local-path
+---
+# Source: company-infra/templates/mysql-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: company-infra
+spec:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: local-path
+---
+# Source: company-infra/templates/nginx-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-pvc
+  namespace: company-infra
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: local-path
+---
+# Source: company-infra/templates/openvpn-pvc.yaml
+# templates/openvpn-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: openvpn-pvc
+  namespace: company-infra
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: local-path
+---
+# Source: company-infra/templates/prometheus-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-pvc
+  namespace: company-infra
+spec:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: local-path
+---
+# Source: company-infra/templates/rsnapbackup-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rsnapbackup-pvc
+  namespace: company-infra
+spec:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: local-path
+---
+# Source: company-infra/templates/samba-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: samba-pvc
+  namespace: company-infra
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: samba-pv
+  storageClassName: ""
+---
+# Source: company-infra/templates/apache2-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: apache2
+  namespace: company-infra
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30880
+      protocol: TCP
+  selector:
+    app: apache2
+---
+# Source: company-infra/templates/grafana-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: company-infra
+spec:
+  type: NodePort
+  ports:
+    - port: 3000
+      targetPort: 3000
+      nodePort: 30300
+  selector:
+    app: grafana
+---
+# Source: company-infra/templates/mysql-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: company-infra
+spec:
+  type: NodePort
+  ports:
+    - port: 3306
+      targetPort: 3306
+      nodePort: 30366
+  selector:
+    app: mysql
+---
+# Source: company-infra/templates/mysqld-exporter-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysqld-exporter
+  namespace: company-infra
+spec:
+  type: NodePort
+  ports:
+    - port: 9104
+      targetPort: 9104
+      nodePort: 31004
+  selector:
+    app: mysqld-exporter
+---
+# Source: company-infra/templates/nginx-exporter-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-exporter
+  namespace: company-infra
+spec:
+  type: NodePort
+  ports:
+    - port: 9113
+      targetPort: 9113
+      nodePort: 31113
+  selector:
+    app: nginx-exporter
+---
+# Source: company-infra/templates/nginx-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  namespace: company-infra
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30888
+  selector:
+    app: nginx
+---
+# Source: company-infra/templates/node-exporter-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-exporter
+  namespace: company-infra
+spec:
+  type: NodePort
+  ports:
+    - port: 9100
+      targetPort: 9100
+      nodePort: 31000
+  selector:
+    app: node-exporter
+---
+# Source: company-infra/templates/openvpn-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: openvpn
+  namespace: company-infra
+spec:
+  type: NodePort
+  ports:
+    - port: 1194
+      targetPort: 1194
+      nodePort: 31194
+  selector:
+    app: openvpn
+---
+# Source: company-infra/templates/prometheus-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: company-infra
+spec:
+  type: NodePort
+  ports:
+    - port: 9090
+      targetPort: 9090
+      nodePort: 30900
+  selector:
+    app: prometheus
+---
+# Source: company-infra/templates/samba-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: samba
+  namespace: company-infra
+spec:
+  type: NodePort
+  ports:
+    - name: netbios
+      port: 139
+      targetPort: 139
+      nodePort: 30139
+    - name: smb  
+      port: 445
+      targetPort: 445
+      nodePort: 30445
+  selector:
+    app: samba
+---
+# Source: company-infra/templates/apache2-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apache2
+  namespace: company-infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apache2
+  template:
+    metadata:
+      labels:
+        app: apache2
+    spec:
+      containers:
+        - name: apache2
+          image: httpd:2.4-alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: apache2-conf
+              mountPath: /usr/local/apache2/conf/httpd.conf
+              subPath: httpd.conf
+            - name: indexhtml
+              mountPath: /usr/local/apache2/htdocs/index.html
+              subPath: index.html
+      volumes:
+        - name: apache2-conf
+          configMap:
+            name: apache2-config
+        - name: indexhtml
+          configMap:
+            name: apache2-indexhtml
+---
+# Source: company-infra/templates/grafana-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: company-infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana
+          volumeMounts:
+            - name: grafana-data
+              mountPath: /var/lib/grafana
+          ports:
+            - containerPort: 3000
+      volumes:
+        - name: grafana-data
+          persistentVolumeClaim:
+            claimName: grafana-pvc
+---
+# Source: company-infra/templates/mysql-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: company-infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:5.7
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "supersecret"
+            - name: MYSQL_DATABASE
+              value: "mydb"
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+          ports:
+            - containerPort: 3306
+      volumes:
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+---
+# Source: company-infra/templates/mysqld-exporter-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysqld-exporter
+  namespace: company-infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysqld-exporter
+  template:
+    metadata:
+      labels:
+        app: mysqld-exporter
+    spec:
+      containers:
+        - name: mysqld-exporter
+          image: prom/mysqld-exporter:v0.14.0
+          args:
+            - --config.my-cnf=/root/.my.cnf
+          volumeMounts:
+            - name: mycnf
+              mountPath: /root/.my.cnf
+              subPath: my.cnf
+          ports:
+            - containerPort: 9104
+          securityContext:
+            runAsUser: 0
+      volumes:
+        - name: mycnf
+          secret:
+            secretName: mysqld-mycnf
+---
+# Source: company-infra/templates/nginx-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: company-infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      initContainers:
+        - name: init-html
+          image: busybox
+          command: ['sh','-c','echo "<h1>Welcome to nginx!</h1>" > /mnt/index.html']
+          volumeMounts:
+            - name: webroot
+              mountPath: /mnt
+          secuityContext:
+            runAsUser: 0
+
+      containers:
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            - name: webroot
+              mountPath: /usr/share/nginx/html
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: nginx-config
+        - name: webroot
+          persistentVolumeClaim:
+            claimName: nginx-pvc
+---
+# Source: company-infra/templates/nginx-exporter-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-exporter
+  namespace: company-infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-exporter
+  template:
+    metadata:
+      labels:
+        app: nginx-exporter
+    spec:
+      containers:
+        - name: nginx-exporter
+          image: nginx/nginx-prometheus-exporter:0.11.0
+          args:
+            - "--nginx.scrape-uri=http://nginx:80/stub_status"
+          ports:
+            - containerPort: 9113
+---
+# Source: company-infra/templates/node-exporter-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-exporter
+  namespace: company-infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-exporter
+  template:
+    metadata:
+      labels:
+        app: node-exporter
+    spec:
+      containers:
+        - name: node-exporter
+          image: prom/node-exporter:latest
+          ports:
+            - containerPort: 9100
+---
+# Source: company-infra/templates/openvpn-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openvpn
+  namespace: company-infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openvpn
+  template:
+    metadata:
+      labels:
+        app: openvpn
+    spec:
+      initContainers:
+        - name: openvpn-init
+          image: kylemanna/openvpn
+          env:
+            - name: EASYRSA_BATCH
+              value: "1"
+          command:
+            - /bin/sh
+            - -c
+            - |
+              if [ ! -f /etc/openvpn/ovpn_env.sh ]; then
+                echo "[INFO] Initializing openvpn config...";
+                ovpn_genconfig -u udp://192.168.56.103:1194
+                export EASYRSA_BATCH=1
+                ovpn_initpki nopass
+              fi
+          volumeMounts:
+            - name: openvpn-data
+              mountPath: /etc/openvpn
+          securityContext:
+            capabilities:
+              add: ["NET_ADMIN"]
+            privileged: true
+      containers:
+        - name: openvpn
+          image: kylemanna/openvpn
+          env:
+            - name: EASYRSA_BATCH
+              value: "1"
+
+          ports:
+            - containerPort: 1194
+          volumeMounts:
+            - name: openvpn-data
+              mountPath: /etc/openvpn
+          securityContext:
+            capabilities:
+              add: ["NET_ADMIN"]
+            privileged: true
+      volumes:
+        - name: openvpn-data
+          persistentVolumeClaim:
+            claimName: openvpn-pvc
+---
+# Source: company-infra/templates/prometheus-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: company-infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus
+          volumeMounts:
+            - name: prometheus-data
+              mountPath: /prometheus
+            - name: prometheus-config
+              mountPath: /etc/prometheus/prometheus.yml
+              subPath: prometheus.yml
+          ports:
+            - containerPort: 9090
+      volumes:
+        - name: prometheus-data
+          persistentVolumeClaim:
+            claimName: prometheus-pvc
+        - name: prometheus-config
+          configMap:
+            name: prometheus-config
+---
+# Source: company-infra/templates/samba-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: samba
+  namespace: company-infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: samba
+  template:
+    metadata:
+      labels:
+        app: samba
+    spec:
+      containers:
+        - name: samba
+          image: dperson/samba
+          args: ["-s", "share;/share;yes;no;yes"]
+          ports:
+            - containerPort: 139
+              hostPort: 139
+            - containerPort: 445
+              hostPort: 445
+          volumeMounts:
+            - name: samba-data
+              mountPath: /share
+      volumes:
+        - name: samba-data
+          persistentVolumeClaim:
+            claimName: samba-pvc
+---
+# Source: company-infra/templates/rsnapbackup-cronjob.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: rsnapbackup
+  namespace: company-infra
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: rsnapbackup
+              image: ghcr.io/linuxserver/rsnapshot
+              command:
+                - /bin/sh
+                - -c
+                - "rsnapshot -c /config/rsnapshot.conf sync && rsnapshot -c /config/rsnapshot.conf daily"
+              volumeMounts:
+                - name: config
+                  mountPath: /config/rsnapshot.conf
+                  subPath: rsnapshot.conf
+                - name: data
+                  mountPath: /data
+                - name: backup
+                  mountPath: /backup
+          volumes:
+            - name: config
+              configMap:
+                name: rsnapbackup-config
+            - name: data
+              persistentVolumeClaim:
+                claimName: data-pvc
+            - name: backup
+              persistentVolumeClaim:
+                claimName: rsnapbackup-pvc
+          restartPolicy: OnFailure

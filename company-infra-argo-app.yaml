@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: company-infra-finish                # Application 이름, 마음대로 정해도 됨
+  namespace: argocd                        # ArgoCD가 설치된 네임스페이스 (보통 argocd)
+spec:
+  project: default                         # 그냥 default로 둬도 됨
+  source:
+    repoURL: 'https://github.com/wlals2/company-infra-finish'  # 내 repo 주소
+    targetRevision: main                   # main 브랜치 기준
+    path: templates                        # manifest/helm chart가 있는 디렉터리
+    # helm:
+    #   valueFiles:
+    #     - values.yaml                    # Helm chart로 배포할 땐 이 옵션도 쓴다
+  destination:
+    server: https://kubernetes.default.svc # 고정값(K8s 내부 서비스 URL)
+    namespace: company-infra               # 실제 배포할 네임스페이스!
+  syncPolicy:
+    automated:
+      prune: true                          # 필요 없는 리소스 자동 삭제
+      selfHeal: true                       # 상태 안 맞으면 자동 복구
+

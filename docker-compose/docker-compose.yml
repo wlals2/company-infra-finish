@@ -1,13 +1,32 @@
 version: "3.8"
+
 services:
   sftp:
     image: atmoz/sftp:latest
     container_name: sftp-server
     ports:
-      - "2222:22"  # 호스트 2222 -> 컨테이너 22(SFTP)
+      - "2222:22"
     volumes:
-      - ./data:/home/foo/upload  # foo 사용자의 업로드 디렉토리와 연결
+      - ./data:/home/foo/upload
     environment:
-      - SFTP_USERS=foo:pass:1001  # 사용자:비번:UID
+      - SFTP_USERS=foo:pass:1001
+    restart: unless-stopped
+
+  openvpn:
+    image: kylemanna/openvpn:2.4
+    container_name: openvpn-server
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    privileged: true
+    ports:
+      - "1194:1194/udp"
+    volumes:
+      - ./openvpn-data:/etc/openvpn
+    command:
+      - openvpn
+      - --config
+      - /etc/openvpn/openvpn.conf
     restart: unless-stopped
 

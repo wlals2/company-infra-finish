@@ -6,6 +6,6 @@ metadata:
   namespace: company-infra
 data:
   rsnapshot.conf: |-
-    {{ .Values.rsnapbackup.config | nindent 4 }}
+{{ .Values.rsnapbackup.config | replace "__TAB__" "\t" | nindent 4 }}
 {{- end }}
 
