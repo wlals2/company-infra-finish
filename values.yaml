@@ -149,4 +149,9 @@ rsnapbackup:
 mysqldexporter:
   enabled: true
   nodePort: 31004
+  myCnf: |
+    [client]
+    user=root
+    password=supersecret
+    host=mysql
 
