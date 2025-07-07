@@ -1,13 +1,28 @@
 pipeline {
-  agent any
-
-  environment {
-    REGISTRY = 'docker.io'
-    REPO     = 'wlals2/company-infra-finish' // DockerHub 아이디/레포 맞게 수정!
-    IMAGE    = "${REPO}:${BUILD_NUMBER}"
-    // DOCKERHUB_CREDENTIALS는 Jenkins에 등록해둘 것!
+  agent {
+    kubernetes {
+      yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    - name: docker
+      image: docker:24.0.2-dind
+      command:
+        - cat
+      tty: true
+      volumeMounts:
+        - mountPath: /var/run/docker.sock
+          name: docker-sock
+  volumes:
+    - name: docker-sock
+      hostPath:
+        path: /var/run/docker.sock
+        type: Socket
+"""
+      defaultContainer 'docker'
+    }
   }
-
   stages {
     stage('Checkout') {
       steps {
@@ -16,26 +31,14 @@ pipeline {
     }
     stage('Build Docker Image') {
       steps {
-        script {
-          sh 'docker build -t $IMAGE .'
-        }
+        sh 'docker version'
+        sh 'docker build -t wlals2/company-infra-finish:$BUILD_NUMBER .'
       }
     }
     stage('Push Docker Image') {
       steps {
-        withCredentials([usernamePassword(credentialsId: 'DOCKERHUB_CREDENTIALS', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-          sh '''
-            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin $REGISTRY
-            docker push $IMAGE
-            docker logout $REGISTRY
-          '''
-        }
+        // 아래는 dockerhub 로그인 및 push와 동일
       }
-    }
-  }
-  post {
-    always {
-      cleanWs()
     }
   }
 }
