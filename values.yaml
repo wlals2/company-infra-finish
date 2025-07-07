@@ -126,35 +126,27 @@ samba:
     browsable = yes
     guest ok = yes
 
+
 rsnapbackup:
   enabled: true
   schedule: "0 2 * * *"
   config: |
-    # rsnapshot.conf 예시 내용
-    snapshot_root   /backup/
-    backup  /data/  localhost/
+    config_version__TAB__1.2
+    sync_first__TAB__1
+    cmd_cp__TAB__/bin/cp
+    cmd_rm__TAB__/bin/rm
+    cmd_rsync__TAB__/usr/bin/rsync
+    cmd_logger__TAB__/usr/bin/logger
+    snapshot_root__TAB__/backup/
+    retain__TAB__daily__TAB__7
+    retain__TAB__weekly__TAB__4
+    retain__TAB__monthly__TAB__3
+    backup__TAB__/data/__TAB__localhost/
   storage: 1Gi
-
-
+  dataStorage: 1Gi
 
 
 mysqldexporter:
   enabled: true
   nodePort: 31004
-
-
-
-openvpn:
-  enabled: true
-  nodePort: 31194
-  server_ip: 192.168.56.103
-  env:
-    - name: EASYRSA_BATCH
-      value: "1"
-  config: |
-    # server.conf 예시
-    port 1194
-    proto udp
-    dev tun
-  storage: 1Gi
 
