@@ -37,7 +37,8 @@ spec:
     }
     stage('Push Docker Image') {
       steps {
-        // 아래는 dockerhub 로그인 및 push와 동일
+        echo 'Push Docker Image 단계 - 임시 실행'
+        // 실제 push 명령은 이후 추가
       }
     }
   }
